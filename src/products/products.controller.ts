@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -24,7 +25,7 @@ export class ProductsController {
   @Roles('manager', 'editor')
   @Post()
   @ApiBody({ type: CreateProductDto })
-  create(@Body() createProductDto: CreateProductDto) {
+  create(@Body(new ValidationPipe()) createProductDto: CreateProductDto) {
     return this.productsService.create(createProductDto);
   }
 
@@ -41,7 +42,10 @@ export class ProductsController {
   @UseGuards(JwtAuthGuard)
   @Roles('manager', 'editor')
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
+  update(
+    @Param('id') id: string,
+    @Body(new ValidationPipe()) updateProductDto: UpdateProductDto,
+  ) {
     return this.productsService.update(id, updateProductDto);
   }
 

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from 'src/core/interfaces';
@@ -6,7 +6,6 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { WrongPassword } from 'src/core/exceptions/wrong-password';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Exists } from 'src/core/exceptions/exists';
-import { NotFound } from 'src/core/exceptions/not-found';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -14,10 +13,11 @@ export class UsersService {
   constructor(@InjectModel('User') private readonly userModel: Model<User>) {}
 
   async findUserByUsername(username: string): Promise<User> {
-    const user = await this.userModel.findOne({
-      username,
-    });
-    if (!user) throw new NotFound(username);
+    const user = await this.userModel
+      .findOne({
+        username,
+      })
+      .orFail(new UnauthorizedException('Wrong username'));
     return user;
   }
 
@@ -45,10 +45,7 @@ export class UsersService {
   }
 
   async loginUser(loginUserDto: LoginUserDto): Promise<User> {
-    const user = await this.userModel.findOne({
-      username: loginUserDto.username,
-    });
-    if (!user) throw new NotFound(user.username);
+    const user = await this.findUserByUsername(loginUserDto.username);
     const isValid = await this.comparePassword(
       loginUserDto.password,
       user.password,

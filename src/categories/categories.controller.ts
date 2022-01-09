@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Roles } from 'src/auth/decorator/roles.decorator';
@@ -23,7 +24,7 @@ export class CategoriesController {
   @UseGuards(JwtAuthGuard)
   @Roles('manager')
   @Post()
-  create(@Body() createCategoryDto: CreateCategoryDto) {
+  create(@Body(new ValidationPipe()) createCategoryDto: CreateCategoryDto) {
     return this.categoriesService.create(createCategoryDto);
   }
 
@@ -42,7 +43,7 @@ export class CategoriesController {
   @Patch(':id')
   update(
     @Param('id') id: string,
-    @Body() updateCategoryDto: UpdateCategoryDto,
+    @Body(new ValidationPipe()) updateCategoryDto: UpdateCategoryDto,
   ) {
     return this.categoriesService.update(id, updateCategoryDto);
   }
