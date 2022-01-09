@@ -9,6 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { Roles } from 'src/auth/decorator/roles.decorator';
 import { JwtAuthGuard } from 'src/core/guards/jwt-auth.guard';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -20,6 +21,7 @@ export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @UseGuards(JwtAuthGuard)
+  @Roles('manager')
   @Post()
   create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoriesService.create(createCategoryDto);
@@ -36,6 +38,7 @@ export class CategoriesController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Roles('manager')
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -45,6 +48,7 @@ export class CategoriesController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Roles('manager')
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.categoriesService.remove(id);
