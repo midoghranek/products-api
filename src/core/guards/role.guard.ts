@@ -3,6 +3,7 @@ import {
   CanActivate,
   ExecutionContext,
   ForbiddenException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Role } from '../enums';
@@ -22,7 +23,9 @@ export class RolesGuard implements CanActivate {
     const req = context.switchToHttp().getRequest() as any;
     const user = req.user;
 
-    const matcher = matchRoles(roles, user.role);
+    if (!user?.role) throw new UnauthorizedException('Please login first');
+
+    const matcher = matchRoles(roles, user?.role);
 
     if (!matcher)
       throw new ForbiddenException(
