@@ -15,6 +15,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { JwtAuthGuard } from 'src/core/guards/jwt-auth.guard';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { Roles } from 'src/auth/decorator/roles.decorator';
+import { ParseObjectIdPipe } from 'src/core/pipes/objectId.pipe';
 
 @ApiTags('Products')
 @Controller('products')
@@ -35,7 +36,7 @@ export class ProductsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseObjectIdPipe) id: string) {
     return this.productsService.findOne(id);
   }
 
@@ -43,7 +44,7 @@ export class ProductsController {
   @Roles('manager', 'editor')
   @Patch(':id')
   update(
-    @Param('id') id: string,
+    @Param('id', ParseObjectIdPipe) id: string,
     @Body(new ValidationPipe()) updateProductDto: UpdateProductDto,
   ) {
     return this.productsService.update(id, updateProductDto);
@@ -52,7 +53,7 @@ export class ProductsController {
   @UseGuards(JwtAuthGuard)
   @Roles('manager', 'editor')
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseObjectIdPipe) id: string) {
     return this.productsService.remove(id);
   }
 }
